@@ -30,7 +30,7 @@ import serial
 # For Windows computers, the name is formatted like: "COM6"
 # For Apple computers, the name is formatted like: "/dev/tty.usbmodemfa141"
 #
-arduinoComPort = "COM6"
+arduinoComPort = "/dev/cu.usbmodem14401"
 
 
 #
@@ -39,7 +39,7 @@ arduinoComPort = "COM6"
 # NOTE2: For faster communication, set the baudRate to 115200 below
 #        and check that the arduino sketch you are using is updated as well.
 #
-baudRate = 9600
+baudRate = 115200
 
 
 #
@@ -66,12 +66,10 @@ while True:
     #
     # data was received, convert it into 4 integers
     #
-    a, b, c, d = (int(x) for x in lineOfData.split(','))
+    print(lineOfData)
+    zero, sensorData = (int(x) for x in lineOfData.split(','))
 
     #
     # print the results
     #
-    print("a = " + str(a), end="")
-    print(", b = " + str(b), end="")
-    print(", c = " + str(c), end="")
-    print(", d = " + str(d))
+    print(f"sensor data = {sensorData}");
