@@ -1,13 +1,6 @@
-#      ******************************************************************
-#      *                                                                *
-#      *                                                                *
-#      *    Example Python program that receives data from an Arduino   *
-#      *                                                                *
-#      *                                                                *
-#      ******************************************************************
-
-
 import serial
+import time
+from math import exp
 
 #
 # Note 1: This python script was designed to run with Python 3.
@@ -47,29 +40,29 @@ baudRate = 115200
 #
 serialPort = serial.Serial(arduinoComPort, baudRate, timeout=1)
 
+# Turn on the scanner
+# NOTE: mode is a byte, not a string
+# TODO: This doesn't work right now
+# serialPort.write(1);
+
+def read_packets(serialPort):
+  while True:
+    line = serialPort.readline().decode().rstrip('\n')
+    if len(line) > 0:
+      yield line
+      # yield tuple(int(x) for x in line.split(','))
+
+print("Connected!")
+
+i = 0
+for count in read_packets(serialPort):
+  print("Line:", count)
+  if i % 200 == 0:
+    serialPort.write((77).to_bytes(1, 'big', signed=False))
+    print("Wrote: 77")
+  elif i % 100 == 0:
+    serialPort.write((55).to_bytes(1, 'big', signed=False))
+    print("Wrote: 55")
+  i += 1
 
 
-#
-# main loop to read data from the Arduino, then display it
-#
-while True:
-  #
-  # ask for a line of data from the serial port, the ".decode()" converts the
-  # data from an "array of bytes", to a string
-  #
-  lineOfData = serialPort.readline().decode()
-
-  #
-  # check if data was received
-  #
-  if len(lineOfData) > 0:
-    #
-    # data was received, convert it into 4 integers
-    #
-    print(lineOfData)
-    zero, sensorData = (int(x) for x in lineOfData.split(','))
-
-    #
-    # print the results
-    #
-    print(f"sensor data = {sensorData}");
