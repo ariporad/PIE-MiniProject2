@@ -19,7 +19,7 @@ class Arduino:
     Connect to an Arduino
     """
     self.logging = logging
-    self.serialPort = Serial(port, baudRate, timeout=timeout)
+    self.serial_port = Serial(port, baudRate, timeout=timeout)
 
   def _log(self, *args, **kwargs):
     """
@@ -35,7 +35,7 @@ class Arduino:
     port upon entering/exiting the context manager, including doing so multiple times.
     """
     self._log("Entering Arduino context manager, connecting serial port...")
-    self.serialPort.__enter__()
+    self.serial_port.__enter__()
 
     # But return self so you can do `with Arduino(...) as arduino:`
     return self
@@ -46,36 +46,45 @@ class Arduino:
     port upon entering/exiting the context manager, including doing so multiple times.
     """
     self._log("Exiting Arduino context manager, disconnecting serial port...")
-    return self.serialPort.__exit__(__exc_type, __exc_value, __traceback)
+    return self.serial_port.__exit__(__exc_type, __exc_value, __traceback)
   
   # NB: Calling lines() or packets() more than once is undefined behavior
-  def lines(self):
+  def lines(self, drain_first=True):
     """
     Return an iterator that yields each line the Arduino sends over the Serial connection.
+
+    If drain_first is True, any serial data already received and buffered but not yet processed will
+    be erased.
 
     NOTE: This iterator will block while waiting for a line
     NOTE: Calling this method more than once, or calling it after packets() has been called, is
           undefined behavior.
     """
+    if drain_first:
+      self.serial_port.reset_input_buffer()
+
     while True:
       # NOTE: technically this would get rid of leading spaces too if that was something you cared about
-      line = self.serialPort.readline().decode().strip()
+      line = self.serial_port.readline().decode().strip()
       if len(line) > 0:
         self._log(f"Received Line: {line}")
         yield line
 
-  def packets(self):
+  def packets(self, drain_first=True):
     """
     Return an iterator that yields each packet the Arduino sends over the Serial connection.
 
     A packet is defined as a newline-terminated, comma-separated list of integers. In other words,
     this method expects that your Arduino writes data over serial that looks like this: `1,2,3\n`.
 
+    If drain_first is True, any serial data already received and buffered but not yet processed will
+    be erased.
+
     NOTE: This iterator will block while waiting for a line
     NOTE: Calling this method more than once, or calling it after lines() has been called, is
           undefined behavior.
     """
-    for line in self.lines():
+    for line in self.lines(drain_first=drain_first):
       packet = tuple(int(data) for data in line.split(','))
       self._log(f"Received Packet: {packet}")
       yield packet
@@ -96,7 +105,7 @@ class Arduino:
       else:
         raise Exception("Cannot write data of unknown type!")
     else:
-      self.serialPort.write(data)
+      self.serial_port.write(data)
   
   def writeln(self, data):
     """
