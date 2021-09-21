@@ -94,14 +94,18 @@ class Arduino:
     Write data to the Arduino over Serial. If data is bytes, it will be sent as-is. If data is an
     int, it will be converted to an unsigned 8-bit integer and sent that way (attempting to write an
     integer outside of the range 0-255 is an error). If data is a string it will be utf-8 encoded.
+    If data is a list each element will be individually written as per the above rules.
     """
     self._log(f"Writing data (may need conversion to bytes): {data}")
 
     if not isinstance(data, bytes):
       if isinstance(data, str):
-        return self.write(data.encode('utf-8'))
+        self.write(data.encode('utf-8'))
       elif isinstance(data, int):
-        return self.write(data.to_bytes(1, 'big', signed=True))
+        self.write(data.to_bytes(1, 'big', signed=True))
+      elif isinstance(data, list):
+        for data_item in data:
+          self.write(data_item)
       else:
         raise Exception("Cannot write data of unknown type!")
     else:
