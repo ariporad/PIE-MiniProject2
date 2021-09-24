@@ -1,4 +1,5 @@
-from math import exp
+import os
+from time import sleep
 
 ##################### ARDUINOLIB STARTS HERE ###########################
 from serial import Serial
@@ -121,46 +122,44 @@ class Arduino:
     return self.write(f"{data}\n")
 ##################### ARDUINOLIB ENDS HERE ###########################
 
-# From MATLAB curve fit
-def sensor_to_distance(sensorValue):
-  """
+START_DISTANCE = 5.5
+END_DISTANCE = 70.5
+STEP_DISTANCE = 1.5
+
+def floatrange(start, stop, step):
+  value = start
+  while value <= stop:
+    yield value
+    value += step
+
+# https://stackoverflow.com/a/4060259
+__location__ = os.path.realpath( os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+data = []
+
+with Arduino("/dev/cu.usbmodem14401", baudRate=115200, logging=True) as arduino:
+  print(f"Connected to Arduino! Calibrating from {START_DISTANCE}in to {END_DISTANCE}in ({STEP_DISTANCE}in steps)...")
+  packets = arduino.packets()
+
+  for distance in floatrange(START_DISTANCE, END_DISTANCE + 1, STEP_DISTANCE):
+    input(f"Move the target to {distance}in from the sensor, then press ENTER: ")
+    arduino.write(1)
+    reading = next(packets)[0]
+    print(f"Got: {reading} @ {distance}in")
+    data.append((distance, reading))
   
-  CURVE FIT FOR x = distance, y = sensor
-  FOR y = a*x^b + c
-  (y - c) / a = x^b
-  ((y - c) / a)^(1/b) = x
-  General model Power2:
-     f(x) = a*x^b+c
-Coefficients (with 95% confidence bounds):
-       a =        2263  (862.3, 3664)
-       b =     -0.5535  (-0.981, -0.126)
-       c =        -179  (-465.6, 107.6)
+  print("Done!")
+  
+  name = input("Name this calibration: ").strip()
+  path = os.path.join(__location__, "calibrations", name + '.csv')
 
-Goodness of fit:
-  SSE: 1596
-  R-square: 0.9827
-  Adjusted R-square: 0.9812
-  RMSE: 8.154
+  with open(path, 'w') as f:
+    f.write("distance,sensorReading\n")
+    for distance, reading in data:
+      f.write(f"{distance},{reading}\n")
+  
+  print("Calibration written to: " + path)
+  
 
-
-  """
-
-  y = sensorValue
-  # Nonsense formatting so it can be copy/pasted from MATLAB
-  a =        2263
-  b =     -0.5535
-  c =        -179 
-
-  return ((y -  c) / a) ** (1/b)
-
-
-
-with Arduino("/dev/cu.usbmodem14401", baudRate=115200) as arduino:
-  print("Connected to Arduino!")
-
-  arduino.write(1) # Turn on the scanner
-
-  for xPos, yPos, sensorValue in arduino.packets():
-    distance = sensor_to_distance(sensorValue)
-    print(f"Got Packet: xPos = {xPos}, yPos = {yPos}, sensorValue = {sensorValue}, distance = {distance}in")
+    
 

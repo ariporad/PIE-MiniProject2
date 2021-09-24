@@ -36,7 +36,7 @@ void loop()
       break;
     case 1: // Scan
     {
-      int sensorValue = analogRead(SENSOR_PIN);
+      int sensorValue = min(min(analogRead(SENSOR_PIN), analogRead(SENSOR_PIN)), analogRead(SENSOR_PIN));
 
       Serial.print("0,");
       Serial.print(yPos);
