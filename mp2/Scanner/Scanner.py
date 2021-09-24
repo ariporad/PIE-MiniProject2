@@ -124,39 +124,30 @@ class Arduino:
 # From MATLAB curve fit
 def sensor_to_distance(sensorValue):
   """
-  
-  CURVE FIT FOR x = distance, y = sensor
-  FOR y = a*x^b + c
-  (y - c) / a = x^b
-  ((y - c) / a)^(1/b) = x
-  General model Power2:
-     f(x) = a*x^b+c
-Coefficients (with 95% confidence bounds):
-       a =        2263  (862.3, 3664)
-       b =     -0.5535  (-0.981, -0.126)
-       c =        -179  (-465.6, 107.6)
+  General model Power1:
+      f(x) = a*x^b
+  Coefficients (with 95% confidence bounds):
+        a =        3630  (3279, 3981)
+        b =     -0.9181  (-0.9386, -0.8975)
 
-Goodness of fit:
-  SSE: 1596
-  R-square: 0.9827
-  Adjusted R-square: 0.9812
-  RMSE: 8.154
-
-
+  Goodness of fit:
+    SSE: 19.67
+    R-square: 0.9973
+    Adjusted R-square: 0.9972
+    RMSE: 0.7965
   """
 
-  y = sensorValue
+  x = sensorValue
   # Nonsense formatting so it can be copy/pasted from MATLAB
-  a =        2263
-  b =     -0.5535
-  c =        -179 
+  a =        3630
+  b =     -0.9181
 
-  return ((y -  c) / a) ** (1/b)
+  return (a * x) ** b
 
 
-serialPort = "COM12";
+arduinoComPort = "COM12"
 
-with Arduino(serialPort, baudRate=115200) as arduino:
+with Arduino(arduinoComPort, baudRate=115200) as arduino:
   print("Connected to Arduino!")
 
   arduino.write(1) # Turn on the scanner
