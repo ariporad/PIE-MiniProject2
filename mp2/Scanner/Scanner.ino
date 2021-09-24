@@ -6,7 +6,7 @@
 
 #define SENSOR_PIN A0
 #define Y_SERVO_PIN 9
-//#define X_SERVO_PIN 10
+#define X_SERVO_PIN 10
 
 #define SERVO_STEP 5
 
@@ -15,8 +15,8 @@ int mode = 1;
 Servo yServo;
 int yPos = 0;
 
-//Servo xServo;
-//int xPos = 0;
+Servo xServo;
+int xPos = 0;
 
 void setup()
 { 
@@ -26,8 +26,8 @@ void setup()
   yServo.attach(Y_SERVO_PIN);
   yServo.write(90);
 
-//  xServo.attach(X_SERVO_PIN);
-//  xServo.write(90);
+  xServo.attach(X_SERVO_PIN);
+  xServo.write(90);
 }
 
 void loop() 
@@ -51,17 +51,17 @@ void loop()
       Serial.println(sensorValue);
   
       yPos += SERVO_STEP;
-//      xPos += SERVO_STEP;
       if (yPos > 180)
       {
         yPos = 0;
+        xPos += SERVO_STEP;
       }
-//      if (xPos > 180)
-//      {
-//        xPos = 0;
-//      }
+     if (xPos > 180)
+     {
+       xPos = 0;
+     }
       yServo.write(yPos);
-//      xServo.write(xPos);
+     xServo.write(xPos);
 
       //
       // delay after sending data so the serial connection is not over run
