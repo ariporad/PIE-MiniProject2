@@ -122,8 +122,8 @@ class Arduino:
     return self.write(f"{data}\n")
 ##################### ARDUINOLIB ENDS HERE ###########################
 
-START_DISTANCE = 5.5
-END_DISTANCE = 70.5
+START_DISTANCE = 6
+END_DISTANCE = 66
 STEP_DISTANCE = 1.5
 
 def floatrange(start, stop, step):
@@ -137,7 +137,9 @@ __location__ = os.path.realpath( os.path.join(os.getcwd(), os.path.dirname(__fil
 
 data = []
 
-with Arduino("/dev/cu.usbmodem14401", baudRate=115200, logging=True) as arduino:
+arduinoComPort = "COM12"
+
+with Arduino(arduinoComPort, baudRate=115200, logging=True) as arduino:
   print(f"Connected to Arduino! Calibrating from {START_DISTANCE}in to {END_DISTANCE}in ({STEP_DISTANCE}in steps)...")
   packets = arduino.packets()
 

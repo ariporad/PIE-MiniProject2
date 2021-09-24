@@ -154,8 +154,9 @@ Goodness of fit:
   return ((y -  c) / a) ** (1/b)
 
 
+serialPort = "COM12";
 
-with Arduino("/dev/cu.usbmodem14401", baudRate=115200) as arduino:
+with Arduino(serialPort, baudRate=115200) as arduino:
   print("Connected to Arduino!")
 
   arduino.write(1) # Turn on the scanner
