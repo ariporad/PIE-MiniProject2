@@ -33,6 +33,7 @@ legend( h, 'readingsFiltered vs. distancesFiltered', 'fit4', 'Location', 'NorthE
 % Label axes
 xlabel( 'distancesFiltered', 'Interpreter', 'none' );
 ylabel( 'readingsFiltered', 'Interpreter', 'none' );
+title("Sensor Calibration");
 grid on
 
 
