@@ -8,15 +8,20 @@
 #define Y_SERVO_PIN 9
 #define X_SERVO_PIN 10
 
-#define SERVO_STEP 5
+#define X_POS_MIN 70
+#define X_POS_MAX 100
+#define X_POS_STEP 3
+#define Y_POS_MIN 75  // 45
+#define Y_POS_MAX 100 // 135
+#define Y_POS_STEP 3
 
 int mode = 1;
 
 Servo yServo;
-int yPos = 0;
+int yPos = Y_POS_MIN;
 
 Servo xServo;
-int xPos = 0;
+int xPos = X_POS_MIN;
 
 void setup()
 { 
@@ -24,10 +29,10 @@ void setup()
 
   pinMode(SENSOR_PIN, INPUT);
   yServo.attach(Y_SERVO_PIN);
-  yServo.write(90);
+  yServo.write(yPos);
 
   xServo.attach(X_SERVO_PIN);
-  xServo.write(90);
+  xServo.write(xPos);
 }
 
 void loop() 
@@ -35,38 +40,50 @@ void loop()
   if (Serial.available() > 0)
   {
     mode = Serial.read();
+    if (mode == 1 && Serial.available() >= 2)
+    {
+      xPos = constrain(Serial.read(), X_POS_MIN, X_POS_MAX);
+      yPos = constrain(Serial.read(), Y_POS_MIN, Y_POS_MAX);
+    }
+
+    // drain the queue
+    while (Serial.available()) Serial.read();
   }
 
   switch (mode)
   {
     case 0: // Disabled
+      xPos = X_POS_MIN;
+      yPos = Y_POS_MIN;
       break;
     case 1: // Scan
     {
       int sensorValue = min(min(analogRead(SENSOR_PIN), analogRead(SENSOR_PIN)), analogRead(SENSOR_PIN));
 
       Serial.print("0,");
+      Serial.print(xPos);
+      Serial.print(",");
       Serial.print(yPos);
       Serial.print(',');
       Serial.println(sensorValue);
   
-      yPos += SERVO_STEP;
-      if (yPos > 180)
+      yPos += Y_POS_STEP;
+      if (yPos > Y_POS_MAX)
       {
-        yPos = 0;
-        xPos += SERVO_STEP;
+        yPos = Y_POS_MIN;
+        xPos += X_POS_STEP;
       }
-     if (xPos > 180)
-     {
-       xPos = 0;
-     }
-      yServo.write(yPos);
-     xServo.write(xPos);
-
-      //
-      // delay after sending data so the serial connection is not over run
-      //
-      delay(400);
+      if (xPos > X_POS_MAX)
+      {
+        xPos = X_POS_MIN;
+        mode = 0;
+        Serial.println("1,0,0,0");
+      }
     }
   }
+
+  yServo.write(yPos);
+  xServo.write(xPos);
+
+  delay(400);
 }

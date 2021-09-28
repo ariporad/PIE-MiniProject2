@@ -124,28 +124,32 @@ class Arduino:
 # From MATLAB curve fit
 def sensor_to_distance(sensorValue):
   """
+  x = Distance, f(x) = Reading. NOTE: this is backwards of what we want
   General model Power1:
-      f(x) = a*x^b
-  Coefficients (with 95% confidence bounds):
-        a =        3630  (3279, 3981)
-        b =     -0.9181  (-0.9386, -0.8975)
+     f(x) = a*x^b
+Coefficients (with 95% confidence bounds):
+       a =        7709  (7265, 8153)
+       b =      -1.096  (-1.113, -1.078)
 
-  Goodness of fit:
-    SSE: 19.67
-    R-square: 0.9973
-    Adjusted R-square: 0.9972
-    RMSE: 0.7965
+Goodness of fit:
+  SSE: 345.2
+  R-square: 0.9982
+  Adjusted R-square: 0.9981
+  RMSE: 3.337
   """
 
-  x = sensorValue
+  y = sensorValue
   # Nonsense formatting so it can be copy/pasted from MATLAB
-  a =        3630
-  b =     -0.9181
-
-  return (a * x) ** b
+  a =        7709
+  b =      -1.096
 
 
-arduinoComPort = "COM12"
+  return (y / a) ** (1 / b)
+
+
+arduinoComPort = "/dev/cu.usbmodem14401"
+
+data = []
 
 with Arduino(arduinoComPort, baudRate=115200) as arduino:
   print("Connected to Arduino!")
@@ -153,6 +157,10 @@ with Arduino(arduinoComPort, baudRate=115200) as arduino:
   arduino.write(1) # Turn on the scanner
 
   for xPos, yPos, sensorValue in arduino.packets():
+    if sensorValue == 0:
+      continue
     distance = sensor_to_distance(sensorValue)
+    data.append(data.)
     print(f"Got Packet: xPos = {xPos}, yPos = {yPos}, sensorValue = {sensorValue}, distance = {distance}in")
+
 
