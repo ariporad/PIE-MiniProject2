@@ -28,6 +28,7 @@ opts.StartPoint = [160.905831540222 -0.00439662441852814];
 
 % Plot fit with data.
 figure( 'Name', 'distance_from_data' );
+title("Analog output vs. Distance")
 h = plot( fitresult, xData, yData );
 legend( h, 'actualFiltered vs. measuredFiltered', 'distance_from_data', 'Location', 'NorthEast', 'Interpreter', 'none' );
 % Label axes
