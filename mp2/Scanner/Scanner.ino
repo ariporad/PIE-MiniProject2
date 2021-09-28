@@ -8,12 +8,12 @@
 #define Y_SERVO_PIN 9
 #define X_SERVO_PIN 10
 
-#define X_POS_MIN 70
-#define X_POS_MAX 100
-#define X_POS_STEP 3
+#define X_POS_MIN 90
+#define X_POS_MAX 90
+#define X_POS_STEP 1
 #define Y_POS_MIN 75  // 45
 #define Y_POS_MAX 100 // 135
-#define Y_POS_STEP 3
+#define Y_POS_STEP 1
 
 int mode = 1;
 
@@ -26,6 +26,7 @@ int xPos = X_POS_MIN;
 void setup()
 { 
   Serial.begin(BAUD_RATE);
+  Serial.setTimeout(1);
 
   pinMode(SENSOR_PIN, INPUT);
   yServo.attach(Y_SERVO_PIN);

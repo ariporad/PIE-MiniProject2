@@ -1,5 +1,5 @@
 {
     "board": "arduino:avr:uno",
-    "port": "/dev/cu.usbmodem14401",
+    "port": "/dev/cu.usbmodem143201",
     "sketch": "mp2/Scanner/Scanner.ino"
 }
