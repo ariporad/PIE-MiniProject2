@@ -1,5 +1,3 @@
-import os
-from time import sleep
 
 ##################### ARDUINOLIB STARTS HERE ###########################
 from serial import Serial
@@ -122,24 +120,30 @@ class Arduino:
     return self.write(f"{data}\n")
 ##################### ARDUINOLIB ENDS HERE ###########################
 
-START_DISTANCE = 7
-END_DISTANCE = 67
-STEP_DISTANCE = 1.5
+import os
 
-OFFSET = -3
+START_DISTANCE = 7   # in
+END_DISTANCE = 67    # in
+STEP_DISTANCE = 1.5  # in
+
+# 0 on the tape measure is 3in behind the sensor. This enables us to display distances to the user
+# as they would read them from the tape measure, but store the data accurately.
+OFFSET = -3 # in, 
 
 def floatrange(start, stop, step):
+  """
+  Just like the builtin range(), but works with floats
+  """
   value = start
   while value <= stop:
     yield value
     value += step
 
-# https://stackoverflow.com/a/4060259
-__location__ = os.path.realpath( os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
-data = []
+# Get the path to the folder that this script is in: https://stackoverflow.com/a/4060259
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 arduinoComPort = "/dev/cu.usbmodem143201"
+data = []
 
 with Arduino(arduinoComPort, baudRate=115200, logging=True) as arduino:
   print(f"Connected to Arduino! Calibrating from {START_DISTANCE}in to {END_DISTANCE}in ({STEP_DISTANCE}in steps)...")
